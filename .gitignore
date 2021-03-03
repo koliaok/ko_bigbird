@@ -5,3 +5,4 @@ bigbird/create_dataset
 bigbird/pretrain/tmp
 bigbird/summarization/summary_output
 bigbird/vocab
+bigbird/datasource/
