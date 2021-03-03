@@ -14,7 +14,7 @@ sentencepiece = "^0.1.94"
 tensorflow-text = "^2.4.2"
 tfds-nightly = "^4.1.0-alpha.202101040106"
 pydevd = "^2.2.0"
-tensorflow = "^2.4.0"
+tensorflow-gpu = "^2.4.1"
 
 [tool.poetry.dev-dependencies]
 
