@@ -1,7 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 bigbird/dataset
 bigbird/my
-bigbird/create_dataset
 bigbird/pretrain/tmp
 bigbird/summarization/summary_output
 bigbird/vocab
