@@ -185,9 +185,8 @@ class FullTokenizer(object):
     sp_proto = tf.io.gfile.GFile(sentence_model_voca, "rb").read()
     sp_model.LoadFromSerializedProto(sp_proto)
     self.vocab_size = sp_model.GetPieceSize()
-    print(self.vocab_size)
+
     word_to_token = [sp_model.IdToPiece(i) for i in range(self.vocab_size)]
-    print(word_to_token)
     self.word_start_subtoken = np.array(
       [sp_model.IdToPiece(i)[0] == "▁" for i in range(self.vocab_size)])
 
@@ -195,6 +194,7 @@ class FullTokenizer(object):
         model=tf.io.gfile.GFile(sentence_model_voca, "rb").read())
 
     self.vocab = ko_bpe_vocab(word_to_token)
+    print(self.vocab)
     self.inv_vocab = {v: k for k, v in self.vocab.items()}
 
   def tokenize(self, text):

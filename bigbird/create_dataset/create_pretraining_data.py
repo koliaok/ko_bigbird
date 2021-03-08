@@ -126,7 +126,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
     # The start might be inside a word so fix it
     # such that span always starts at a word
     word_begin_mark = tokenizer.word_start_subtoken[subtokens]# Start token이 "▁" 인 token 만 True
-    word_begins_pos = np.flatnonzero(word_begin_mark).astype(np.int32)# word_begin_mark에 False된 부분을 외한 Index만 기
+    word_begins_pos = np.flatnonzero(word_begin_mark).astype(np.int32)# word_begin_mark에 False된 부분을 제외한 Index만 기록
     if word_begins_pos.size == 0:
       # if no word boundary present, we do not do whole word masking
       # and we fall back to random masking.
@@ -169,8 +169,9 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
     random_index = masked_lm_positions[randomness > 0.9]# 0.9 보다 큰 값의 index는 random하게 가져
 
     subtokens[mask_index] = 67  # id of masked token [MASK] = 67 subtokens에 0.8보다 작은 확률의 index를 masking token으로 변경
-    subtokens[random_index] = np.random.randint(  # voca에 0~101사이의 값은 special tokens 이므로 low=101, high=vocab_size로 사용하여 random index개수 만큼 random vocab index를 넣어
+    random_token_value = np.random.randint(  # voca에 0~100사이의 값은 special tokens 이므로 low=101, high=vocab_size로 사용하여 random index개수 만큼 random vocab index를 넣어
         101, tokenizer.vocab_size, len(random_index), dtype=np.int32)
+    subtokens[random_index] = random_token_value
 
     # add [CLS] (65) and [SEP] (66) tokens, masking과 random으로 구성된 subtoken 앞, 뒤에 [CLS]와 [SEP] 토큰으로 채워줌
     subtokens = np.concatenate([
@@ -179,15 +180,15 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
     ])
 
     # pad everything to correct shape
-    pad_inp = max_seq_length - num_tokens - 2# padding token 길이 계산
+    pad_inp = max_seq_length - num_tokens - 2# padding token의 길이 계산
     subtokens = np.pad(subtokens, [0, pad_inp], "constant")# padding token (0 ~ 2017) 만큼 <pad> token으로 처리하기
     subtokens_mask_ids = np.where(subtokens > 0, 1, 0)# 전체 토큰중에 어떤게 전처리 되었는지 마스킹
     pad_out = max_predictions_per_seq - len(masked_lm_positions)#pad가 되지 않은 sequence length를 계
     masked_lm_weights = np.pad(
-        np.ones_like(masked_lm_positions, dtype=np.float32),# masked_lm_postion index를 모두 1로 변경하고 나머지를 0으로 padding한다. 여기서 type이 float이란점 기역
+        np.ones_like(masked_lm_positions, dtype=np.float32),# masked_lm_postion index를 모두 1로 변경하고 나머지를 0으로 padding한다. 여기서 type이 float이란점 기억
         [0, pad_out], "constant")
     masked_lm_positions = np.pad(
-        masked_lm_positions + 1, [0, pad_out], "constant")# [CLS]토큰이 추가 되었으므로 masking position에 1을 더하고, 나머지는 padding 처
+        masked_lm_positions + 1, [0, pad_out], "constant")# [CLS]토큰이 추가 되었으므로 masking position에 1을 더하고, 나머지는 padding 처리, +1은 position 한칸씩 밀어준경우
     masked_lm_ids = np.pad(masked_lm_ids, [0, pad_out], "constant")# 실제 masking 된 index값에 padding처
     segment_ids = np.ones_like(subtokens)# subtokens의 segment_ids를 계산
     next_sentence_labels = 0# next sentence prediction을 사용하지 않으므로 0
@@ -209,9 +210,13 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   # sentence boundaries for the "next sentence prediction" task).
   # (2) Blank lines between documents. Document boundaries are needed so
   # that the "next sentence prediction" task doesn't span between documents.
+
+  stop_cnt = 0
   for input_file in input_files:
     with tf.io.gfile.GFile(input_file, "r") as reader:
       while True:
+        if stop_cnt == 10:
+          break
         line = tokenization.convert_to_unicode(reader.readline())
         if not line:
           break
@@ -220,9 +225,9 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
         # Empty lines are used as document delimiters
         if not line:
           all_documents.append([])
-
-        if line:
+        else:
           all_documents[-1].append(line)
+          stop_cnt +=1
 
 
   # Remove empty documents
@@ -234,12 +239,10 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   for documents in all_documents:
     subtokens = tokenizer.tf_tokenizer.tokenize(documents)
 
-    insert_tokens = []
-    for tokens in subtokens.numpy():
-      insert_tokens.extend(tokens.tolist())
+    #tokenize된 객체 들구오기
+    insert_tokens = subtokens.numpy()[0]
 
-    insert_tokens = np.array(insert_tokens)
-
+    # token masking처리
     (subtokens, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
      masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(insert_tokens)
 
@@ -267,7 +270,7 @@ def main(_):
   input_files = []
   for input_pattern in FLAGS.input_file.split(","):
     input_files.extend(tf.io.gfile.glob(input_pattern))
-
+  #2.1 input data 전처리전 데이터
   logging.info("*** Reading from input files ***")
   for input_file in input_files:
     logging.info("  %s", input_file)
