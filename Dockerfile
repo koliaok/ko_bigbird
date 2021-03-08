@@ -15,8 +15,6 @@ RUN python3.8 -m pip install poetry
 
 WORKDIR /app/ko_bigbird
 
-RUN export PYTHONPATH='/app/ko_bigbird/'
-
 COPY pyproject.toml /app/ko_bigbird/pyproject.toml
 COPY poetry.lock /app/ko_bigbird/poetry.lock
 RUN poetry install --no-dev
