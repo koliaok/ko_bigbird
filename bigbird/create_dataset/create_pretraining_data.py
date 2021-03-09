@@ -210,7 +210,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   # sentence boundaries for the "next sentence prediction" task).
   # (2) Blank lines between documents. Document boundaries are needed so
   # that the "next sentence prediction" task doesn't span between documents.
-
+  cnt = 0
   for input_file in input_files:
     with tf.io.gfile.GFile(input_file, "r") as reader:
       while True:
@@ -225,6 +225,9 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
         else:
           all_documents[-1].append(line)
 
+        cnt += 1
+
+  print('number of data',cnt)
   # Remove empty documents
   all_documents = [x for x in all_documents if x]
   rng.shuffle(all_documents)
