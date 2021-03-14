@@ -194,7 +194,7 @@ class FullTokenizer(object):
         model=tf.io.gfile.GFile(sentence_model_voca, "rb").read())
 
     self.vocab = ko_bpe_vocab(word_to_token)
-    print(self.vocab)
+
     self.inv_vocab = {v: k for k, v in self.vocab.items()}
 
   def tokenize(self, text):

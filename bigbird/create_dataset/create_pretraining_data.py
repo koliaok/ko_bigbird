@@ -49,7 +49,7 @@ flags.DEFINE_integer("random_seed", 12345, "Random seed for data generation.")
 
 flags.DEFINE_float("masked_lm_prob", 0.15, "Masked LM probability.")
 
-
+flags.DEFINE_integer("split_output_data_len", 6, "split output data len")
 
 class TrainingInstance(object):
   """A single training instance (sentence pair)."""
@@ -109,7 +109,8 @@ def create_float_feature(values):
 
 
 def create_training_instances(input_files, tokenizer, max_seq_length,
-                              masked_lm_prob, max_predictions_per_seq, rng):
+                              masked_lm_prob, max_predictions_per_seq, rng,
+                              write_instance_to_example_files, output_files):
   """Create `TrainingInstance`s from raw text."""
 
   def numpy_masking(subtokens):
@@ -202,6 +203,18 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
     # next_sentence_labels = next sentence prediction을 사용하지 않으므로 [0] 생성 (size : 1, type: int)
     return subtokens, subtokens_mask_ids, masked_lm_positions, masked_lm_ids, masked_lm_weights, segment_ids, next_sentence_labels
 
+  output_file = output_files[0]
+
+  output_file = output_file.split('/')
+
+  first_output_path = '/'.join(output_file[:-1]) + '/'
+
+  another_output_path =output_file[-1].split('.')
+
+  first_output_text = first_output_path + another_output_path[0]
+
+  second_output_type = '.' + another_output_path[1]
+
   all_documents = [[]]
 
   # Input file format:
@@ -210,13 +223,24 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   # sentence boundaries for the "next sentence prediction" task).
   # (2) Blank lines between documents. Document boundaries are needed so
   # that the "next sentence prediction" task doesn't span between documents.
-  cnt = 0
+
   for input_file in input_files:
     with tf.io.gfile.GFile(input_file, "r") as reader:
-      while True:
-        line = tokenization.convert_to_unicode(reader.readline())
-        if not line:
-          break
+
+      total_data = reader.readlines()
+
+      split_data_len = len(total_data) // FLAGS.split_output_data_len
+
+      last_data_len = len(total_data) % FLAGS.split_output_data_len
+
+      cnt = 0
+
+      text_cnt = 0
+
+      for data in total_data:
+
+        line = tokenization.convert_to_unicode(data)
+
         line = line.strip()
 
         # Empty lines are used as document delimiters
@@ -227,36 +251,55 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
 
         cnt += 1
 
-  print('number of data',cnt)
-  # Remove empty documents
-  all_documents = [x for x in all_documents if x]
-  rng.shuffle(all_documents)
+        if cnt == split_data_len:
+          print('number of data', cnt)
 
-  instances = []
+          cnt = 0
+          text_cnt += 1
 
-  for documents in all_documents:
-    subtokens = tokenizer.tf_tokenizer.tokenize(documents)
+          # Remove empty documents
+          all_documents = [x for x in all_documents if x]
+          rng.shuffle(all_documents)
 
-    #tokenize된 객체 들구오기
-    insert_tokens = subtokens.numpy()[0]
+          instances = []
 
-    # token masking처리
-    (subtokens, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
-     masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(insert_tokens)
+          for documents in all_documents:
+            subtokens = tokenizer.tf_tokenizer.tokenize(documents)
 
-    instance = TrainingInstance(
-      tokens=subtokens,
-      tokens_postion_ids=subtokens_postion_ids,
-      segment_ids=segment_ids,
-      is_random_next=next_sentence_labels,
-      masked_lm_positions=masked_lm_positions,
-      masked_lm_labels=masked_lm_ids,
-      masked_lm_weights=masked_lm_weights)
+            #tokenize된 객체 들구오기
+            insert_tokens = subtokens.numpy()[0]
 
-    instances.extend([instance])
+            # token masking처리
+            (subtokens, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
+             masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(insert_tokens)
 
-  rng.shuffle(instances)
-  return instances
+            instance = TrainingInstance(
+              tokens=subtokens,
+              tokens_postion_ids=subtokens_postion_ids,
+              segment_ids=segment_ids,
+              is_random_next=next_sentence_labels,
+              masked_lm_positions=masked_lm_positions,
+              masked_lm_labels=masked_lm_ids,
+              masked_lm_weights=masked_lm_weights)
+
+            instances.extend([instance])
+
+          rng.shuffle(instances)
+
+          output_data_name = first_output_text + '_' + str(text_cnt) + second_output_type
+
+          write_instance_to_example_files(instances, [output_data_name])
+
+          del all_documents
+
+          all_documents = [[]]
+
+          if text_cnt == (FLAGS.split_output_data_len):
+            split_data_len += last_data_len
+            print(split_data_len)
+
+
+
 
 def main(_):
 
@@ -273,19 +316,18 @@ def main(_):
   for input_file in input_files:
     logging.info("  %s", input_file)
 
-  # 3. 학습 데이터 전처리 및 마스킹
-  rng = random.Random(FLAGS.random_seed)
-  instances = create_training_instances(
-      input_files, tokenizer, FLAGS.max_seq_length, FLAGS.masked_lm_prob, FLAGS.max_predictions_per_seq,
-      rng)
-
-  # 4. 학습데이터 생성
+  # 3. output_file 처리
   output_files = FLAGS.output_file.split(",")
   logging.info("*** Writing to output files ***")
   for output_file in output_files:
     logging.info("  %s", output_file)
 
-  write_instance_to_example_files(instances, output_files)
+  # 4. 학습 데이터 전처리 및 마스킹
+  rng = random.Random(FLAGS.random_seed)
+  create_training_instances(
+    input_files, tokenizer, FLAGS.max_seq_length,
+    FLAGS.masked_lm_prob, FLAGS.max_predictions_per_seq,
+    rng, write_instance_to_example_files, output_files)
 
 
 if __name__ == "__main__":
