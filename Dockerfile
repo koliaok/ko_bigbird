@@ -9,6 +9,7 @@ RUN apt-get upgrade -y
 RUN apt-get install build-essential checkinstall -y
 RUN apt-get install python3.8 -y
 RUN apt-get install vim -y
+RUN apt-get install -y cron
 
 RUN python3.8 -m pip install --upgrade pip
 RUN python3.8 -m pip install poetry
