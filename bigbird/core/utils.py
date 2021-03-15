@@ -566,7 +566,7 @@ class EmbeddingLayer(tf.compat.v1.layers.Layer):
 ########################## TPU/CHECKPOINT UTILS ################################
 
 
-def get_estimator(config, model_fn, keep_checkpoint_max=10):
+def get_estimator(config, model_fn, keep_checkpoint_max=5):
   """Create TPUEstimator object for given config and model_fn."""
   tpu_cluster_resolver = None # TPU를 사용할 것인지를 확인
   if config["use_tpu"] and config["tpu_name"]:
@@ -612,7 +612,7 @@ def get_estimator(config, model_fn, keep_checkpoint_max=10):
           per_host_input_for_training=is_per_host, # 학습 단계에서 호스트 설정 PER_HOST_V2 -> 3
           eval_training_input_configuration=sliced_eval_mode)) #평가 단계에서 호스트 설정 PER_HOST_V1 -> 2
 
-  if config["init_checkpoint"]: # Checkpoint가 설정된 경우( 이미 Trainig 된 모델이 있다면)
+  if config["init_checkpoint"]: # Checkpoint가 설정된 경우( 이미 Trainig 된 모델이 있다면) WarmStartSettings를 이용한 Checkpoint model load
     ckpt_var_list = tf.compat.v1.train.list_variables(config["init_checkpoint"])
     ckpt_var_list = {
         name: shape for name, shape in ckpt_var_list
