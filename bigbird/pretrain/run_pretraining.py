@@ -29,6 +29,8 @@ import tensorflow_datasets as tfds
 import tensorflow_text as tft
 import sentencepiece as spm
 import cProfile
+import collections
+import re
 #from tensorflow.python import debug as tf_debug
 
 #pydevd.settrace()
@@ -127,6 +129,33 @@ flags.DEFINE_integer(
     "batch_size", 1,
     "batch_size"
     "batch_size")
+
+
+def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
+  """Compute the union of the current variables and checkpoint variables."""
+  assignment_map = {}
+  initialized_variable_names = {}
+
+  name_to_variable = collections.OrderedDict()
+  for var in tvars:
+    name = var.name
+    m = re.match("^(.*):\\d+$", name)
+    if m is not None:
+      name = m.group(1)
+    name_to_variable[name] = var
+
+  init_vars = tf.train.list_variables(init_checkpoint)
+
+  assignment_map = collections.OrderedDict()
+  for x in init_vars:
+    (name, var) = (x[0], x[1])
+    if name not in name_to_variable:
+      continue
+    assignment_map[name] = name
+    initialized_variable_names[name] = 1
+    initialized_variable_names[name + ":0"] = 1
+
+  return (assignment_map, initialized_variable_names)
 
 def input_fn_builder(data_dir, vocab_model_file, masked_lm_prob,
                      max_encoder_length, max_predictions_per_seq,
@@ -253,7 +282,7 @@ def serving_input_fn_builder(batch_size, max_encoder_length,
   return input_fn
 
 
-def model_fn_builder(bert_config):
+def model_fn_builder(bert_config, init_checkpoint, use_tpu):
   """Returns `model_fn` closure for TPUEstimator."""
 
   def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -292,6 +321,11 @@ def model_fn_builder(bert_config):
 
     tvars = tf.compat.v1.trainable_variables()
     utils.LogVariable(tvars, bert_config["ckpt_var_list"])
+
+    if init_checkpoint:
+        (assignment_map, initialized_variable_names) = get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+        logging.info("Load init_check_point")
+        tf.compat.v1.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
     output_spec = None
     if mode == tf.estimator.ModeKeys.TRAIN:
@@ -507,12 +541,16 @@ def main(_):
   if FLAGS.do_train:
     flags.save(os.path.join(FLAGS.output_dir, "pretrain.config"))
 
-  model_fn = model_fn_builder(bert_config)# 학습 모델을 설정
+  model_fn = model_fn_builder(bert_config,
+                              init_checkpoint=FLAGS.init_checkpoint,
+                              use_tpu=FLAGS.use_tpu)# 학습 모델을 설정
+
   estimator = utils.get_estimator(bert_config, model_fn)# 모델를 학습하고, 예측할 estimator 생성
   if FLAGS.do_train:
     logging.info("***** Running training *****")
     logging.info("  Batch size = %d", estimator.train_batch_size)
     logging.info("  Num steps = %d", FLAGS.num_train_steps)
+
     train_input_fn = input_fn_builder( #학습에 사용될 Input data 설정
         data_dir=FLAGS.data_dir,
         vocab_model_file=FLAGS.vocab_model_file,
@@ -525,7 +563,8 @@ def main(_):
         is_training=True)
     #hooks = [tf_debug.LocalCLIDebugHook(ui_type="readline")]
 
-    estimator.train(input_fn=train_input_fn, max_steps=FLAGS.num_train_steps)
+    estimator.train(input_fn=train_input_fn,
+                    max_steps=FLAGS.num_train_steps)
 
   if FLAGS.do_eval:
     logging.info("***** Running evaluation *****")

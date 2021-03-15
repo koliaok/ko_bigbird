@@ -583,6 +583,7 @@ def get_estimator(config, model_fn, keep_checkpoint_max=10):
   config_eval_batch_size = config["eval_batch_size"]       # For estimator
   effective_train_batch_size = config["train_batch_size"]  # For human
   effective_eval_batch_size = config["eval_batch_size"]    # For human
+
   if config["use_tpu"]:  # TPU를 사용할 경우
     sliced_eval_mode = tf.compat.v1.estimator.tpu.InputPipelineConfig.SLICED
     distribute_strategy = None
