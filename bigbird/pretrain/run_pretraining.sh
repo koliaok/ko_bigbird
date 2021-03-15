@@ -14,6 +14,6 @@ poetry run python ./run_pretraining.py \
   --do_train=true \
   --do_eval=false \
   --do_export=false \
-  --train_batch_size=4 \
-  --batch_size=4 \
+  --train_batch_size=2 \
+  --batch_size=2 \
   --preprocessed_data=true
