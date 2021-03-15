@@ -123,6 +123,10 @@ flags.DEFINE_bool(
     "use_nsp", False,
     "Whether to use next sentence prediction loss.")
 
+flags.DEFINE_integer(
+    "batch_size", 1,
+    "batch_size"
+    "batch_size")
 
 def input_fn_builder(data_dir, vocab_model_file, masked_lm_prob,
                      max_encoder_length, max_predictions_per_seq,
@@ -185,6 +189,7 @@ def input_fn_builder(data_dir, vocab_model_file, masked_lm_prob,
 
     input_files = tf.io.gfile.glob(os.path.join(data_dir, "*{}.tfrecord*".format(split)))
 
+    input_files = input_files[:1]
     # For training, we want a lot of parallel reading and shuffling.
     # For eval, we want no shuffling and parallel reading doesn't matter.
     if is_training:

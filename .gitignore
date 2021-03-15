@@ -1,4 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
+.idea
+bigbird.egg-info
+
+
 __pycache__/
 bigbird/dataset
 bigbird/my
@@ -6,3 +10,4 @@ bigbird/pretrain/tmp
 bigbird/summarization/summary_output
 bigbird/vocab
 bigbird/datasource/
+bigbird/model/
