@@ -12,7 +12,6 @@ RUN apt-get install cron -y
 
 ENV TZ=Asia/Seoul
 RUN echo $TZ > /etc/timezone && \
-    rm /etc/localtime && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
 
 RUN python3.8 -m pip install --upgrade pip
