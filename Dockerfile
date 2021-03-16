@@ -12,11 +12,8 @@ RUN apt-get install cron -y
 
 ENV TZ=Asia/Seoul
 RUN echo $TZ > /etc/timezone && \
-    apt-get install -y tzdata && \
     rm /etc/localtime && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    apt-get clean
 
 RUN python3.8 -m pip install --upgrade pip
 RUN python3.8 -m pip install poetry
