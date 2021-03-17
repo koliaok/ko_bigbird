@@ -4,6 +4,8 @@
 
 export PYTHONPATH='/app/ko_bigbird/'
 
+cd /app/ko_bigbird/bigbird/pretrain/
+
 poetry run python ./run_pretraining.py \
   --init_checkpoint=../model/pretrained/ \
   --data_dir=../datasource/tf_pretrained_data \
