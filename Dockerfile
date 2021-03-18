@@ -20,7 +20,7 @@ COPY pyproject.toml /app/ko_bigbird/pyproject.toml
 COPY poetry.lock /app/ko_bigbird/poetry.lock
 RUN poetry install --no-dev
 
-CMD cron
+RUN cron
 
 #RUN mkdir opt
 #RUN cd opt
