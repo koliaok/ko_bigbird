@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.4.1-gpu
+FROM tensorflow/tensorflow:2.4.0-gpu
 
 ARG INVESTPICK_TIMEZONE=Asia/Seoul
 RUN ln -sf /usr/share/zoneinfo/${INVESTPICK_TIMEZONE} /etc/localtime
