@@ -16,15 +16,16 @@ RUN python3.8 -m pip install poetry
 
 WORKDIR /app/ko_bigbird
 
+COPY pretraining_crontab /etc/cron.d/pretraining_crontab
+RUN chmod 0644 /etc/cron.d/pretraining_crontab
+RUN crontab /etc/cron.d/pretraining_crontab
+RUN touch /var/log/pretraining_log_down.txt
+RUN touch /var/log/pretraining_log_excution.txt
+
 COPY pyproject.toml /app/ko_bigbird/pyproject.toml
 COPY poetry.lock /app/ko_bigbird/poetry.lock
 RUN poetry install --no-dev
 
-COPY /app/ko_bigbird/bigbird/pretrain/pretraining_crontab.sh /etc/cron.d/pretraining_crontab
-RUN chmod 0644 /etc/cron.d/pretraining_crontab
-RUN crontab /etc/cron.d/pretraining_crontab
-RUN touch /app/ko_bigbird/bigbird/pretrain/log_down.txt
-RUN touch /app/ko_bigbird/bigbird/pretrain/log_excution.txt
 CMD cron
 
 #RUN mkdir opt

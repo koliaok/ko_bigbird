@@ -1,12 +1,11 @@
 #!/bin/bash
 
 # TF_XLA_FLAGS=--tf_xla_auto_jit=2
-
-export PYTHONPATH='/app/ko_bigbird/'
+export PYTHONPATH="/app/ko_bigbird:$PYTHONPATH"
 
 cd /app/ko_bigbird/bigbird/pretrain/
 
-poetry run python ./run_pretraining.py \
+/usr/local/bin/poetry run python ./run_pretraining.py \
   --init_checkpoint=../model/pretrained/ \
   --data_dir=../datasource/tf_pretrained_data \
   --output_dir=../model/pretrained \

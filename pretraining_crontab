@@ -1,0 +1,5 @@
+# pretrain donw script
+30 23 * * * /app/ko_bigbird/bigbird/pretrain/down.sh >> /var/log/pretraining_log_down.txt 2>&1
+
+# pretrain run script
+30 10 * * * /app/ko_bigbird/bigbird/pretrain/run_pretraining.sh >> /var/log/pretraining_log_excution.txt 2>&1
