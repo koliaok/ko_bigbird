@@ -1,7 +1,8 @@
 FROM tensorflow/tensorflow:2.4.1-gpu
 
-#RUN ln -sf /usr/share/zoneinfo/${SERVER_TIMEZONE} /etc/localtime
-#RUN pip install poetry==1.0.5
+ARG INVESTPICK_TIMEZONE=Asia/Seoul
+RUN ln -sf /usr/share/zoneinfo/${INVESTPICK_TIMEZONE} /etc/localtime
+
 
 RUN apt-get update
 RUN apt-get upgrade -y
@@ -9,10 +10,6 @@ RUN apt-get install build-essential checkinstall -y
 RUN apt-get install python3.8 -y
 RUN apt-get install vim -y
 RUN apt-get install cron -y
-
-ENV TZ=Asia/Seoul
-RUN echo $TZ > /etc/timezone
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN python3.8 -m pip install --upgrade pip
 RUN python3.8 -m pip install poetry
@@ -22,6 +19,13 @@ WORKDIR /app/ko_bigbird
 COPY pyproject.toml /app/ko_bigbird/pyproject.toml
 COPY poetry.lock /app/ko_bigbird/poetry.lock
 RUN poetry install --no-dev
+
+COPY /app/ko_bigbird/bigbird/pretrain/pretraining_crontab /etc/cron.d/pretraining_crontab
+RUN chmod 0644 /etc/cron.d/pretraining_crontab
+RUN crontab /etc/cron.d/pretraining_crontab
+RUN touch /app/ko_bigbird/bigbird/pretrain/log_down.txt
+RUN touch /app/ko_bigbird/bigbird/pretrain/log_excution.txt
+CMD cron
 
 #RUN mkdir opt
 #RUN cd opt
