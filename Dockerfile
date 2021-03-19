@@ -5,8 +5,7 @@ RUN ln -sf /usr/share/zoneinfo/${INVESTPICK_TIMEZONE} /etc/localtime
 
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install build-essential checkinstall -y
-RUN apt-get install python3.8 -y
-RUN apt-get install cron -y
+RUN apt-get install python3.8 -y && apt-get install cron -y && apt-get install vim -y
 
 RUN python3.8 -m pip install --upgrade pip && python3.8 -m pip install poetry
 
