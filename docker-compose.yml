@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BIGTREE_APP_TIMEZONE: ${BIGTREE_APP_TIMEZONE:-Asia/Seoul}
+        TIMEZONE: ${TIMEZONE:-Asia/Seoul}
     image: ${COMPOSE_PROJECT_NAME:-ko_bigbird}_2.4.0-gpu
     command: /app/ko_bigbird/bigbird/pretrain/run_pretraining.sh
     volumes:
