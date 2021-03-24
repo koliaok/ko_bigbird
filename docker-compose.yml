@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.7"
 
 services:
   backend:
@@ -10,6 +10,4 @@ services:
     image: ${COMPOSE_PROJECT_NAME:-ko_bigbird}_2.4.0-gpu
     command: /app/ko_bigbird/bigbird/pretrain/run_pretraining.sh
     volumes:
-      - type: volume
-        source: vol
-        target: /app
+      - /var/lib/docker/volumes/vol/_data:/app
