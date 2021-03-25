@@ -292,7 +292,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
 
           rng.shuffle(instances)
 
-          output_data_name = first_output_text + '_' + str(text_cnt) + train_type + second_output_type
+          output_data_name = first_output_text + '_' + str(text_cnt) + '_' + train_type + second_output_type
 
           write_instance_to_example_files(instances, [output_data_name])
 
