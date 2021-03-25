@@ -51,6 +51,9 @@ flags.DEFINE_float("masked_lm_prob", 0.15, "Masked LM probability.")
 
 flags.DEFINE_integer("split_output_data_len", 6, "split output data len")
 
+flags.DEFINE_bool("is_train", True, "training data를 생성할 것인지")
+
+
 class TrainingInstance(object):
   """A single training instance (sentence pair)."""
 
@@ -110,7 +113,8 @@ def create_float_feature(values):
 
 def create_training_instances(input_files, tokenizer, max_seq_length,
                               masked_lm_prob, max_predictions_per_seq, rng,
-                              write_instance_to_example_files, output_files):
+                              write_instance_to_example_files, output_files,
+                              is_train):
   """Create `TrainingInstance`s from raw text."""
 
   def numpy_masking(subtokens):
@@ -203,6 +207,8 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
     # next_sentence_labels = next sentence prediction을 사용하지 않으므로 [0] 생성 (size : 1, type: int)
     return subtokens, subtokens_mask_ids, masked_lm_positions, masked_lm_ids, masked_lm_weights, segment_ids, next_sentence_labels
 
+  train_type = 'train' if is_train else 'test'
+
   output_file = output_files[0]
 
   output_file = output_file.split('/')
@@ -286,7 +292,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
 
           rng.shuffle(instances)
 
-          output_data_name = first_output_text + '_' + str(text_cnt) + 'train' + second_output_type
+          output_data_name = first_output_text + '_' + str(text_cnt) + train_type + second_output_type
 
           write_instance_to_example_files(instances, [output_data_name])
 
@@ -327,7 +333,9 @@ def main(_):
   create_training_instances(
     input_files, tokenizer, FLAGS.max_seq_length,
     FLAGS.masked_lm_prob, FLAGS.max_predictions_per_seq,
-    rng, write_instance_to_example_files, output_files)
+    rng, write_instance_to_example_files, output_files,
+    FLAGS.is_train,
+  )
 
 
 if __name__ == "__main__":

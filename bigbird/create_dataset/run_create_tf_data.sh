@@ -13,3 +13,4 @@ poetry run python ./create_pretraining_data.py \
   --random_seed=12345 \
   --masked_lm_prob=0.15 \
   --split_output_data_len=10 \
+  --is_train=true \
