@@ -441,7 +441,7 @@ class MaskedLMLayer(tf.compat.v1.layers.Layer):
 
   @property
   def trainable_weights(self):
-    self._trainable_weights = (self.extra_layer +
+    self._trainable_weights = (self.extra_layer.trainable_weights +
                                self.norm_layer.trainable_weights +
                                [self.output_bias])
     return self._trainable_weights
