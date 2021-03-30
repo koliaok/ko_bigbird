@@ -281,16 +281,20 @@ def model_fn_builder(bert_config):
         activation_fn=utils.get_activation(bert_config["hidden_act"]))
     masked_lm_loss, masked_lm_log_probs = masked_lm.get_mlm_loss()
 
+    """
     next_sentence = NSPLayer( # next sentence output 계산 모델 정의
         bert_config["hidden_size"],
         input_tensor=pooled_output,
         next_sentence_labels=features.get("next_sentence_labels"),
         initializer=utils.create_initializer(bert_config["initializer_range"]))
     next_sentence_loss, next_sentence_log_probs = next_sentence.get_next_sentence_loss()
-
+    """
     total_loss = masked_lm_loss
+
+    """
     if bert_config["use_nsp"]:
       total_loss += next_sentence_loss
+    """
 
     tvars = tf.compat.v1.trainable_variables()
     utils.LogVariable(tvars, bert_config["ckpt_var_list"])
@@ -322,11 +326,11 @@ def model_fn_builder(bert_config):
               bert_config["output_dir"], {"learning_rate": learning_rate}))
 
     elif mode == tf.estimator.ModeKeys.EVAL:
-
-      def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
+      """
+            def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
                     masked_lm_weights, next_sentence_loss_value,
                     next_sentence_log_probs, next_sentence_labels):
-        """Computes the loss and accuracy of the model."""
+        
         masked_lm_predictions = tf.argmax(
             masked_lm_log_probs, axis=-1, output_type=tf.int32)
         masked_lm_accuracy = tf.compat.v1.metrics.accuracy(
@@ -355,12 +359,34 @@ def model_fn_builder(bert_config):
           features["masked_lm_weights"], next_sentence_loss,
           next_sentence_log_probs, features["next_sentence_labels"]
       ])
+      """
+      def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
+                    masked_lm_weights):
+        
+        masked_lm_predictions = tf.argmax(
+            masked_lm_log_probs, axis=-1, output_type=tf.int32)
+        masked_lm_accuracy = tf.compat.v1.metrics.accuracy(
+            labels=masked_lm_ids,
+            predictions=masked_lm_predictions,
+            weights=masked_lm_weights)
+        masked_lm_mean_loss = tf.compat.v1.metrics.mean(
+            values=masked_lm_loss_value)
+
+        return {
+            "masked_lm_accuracy": masked_lm_accuracy,
+            "masked_lm_loss": masked_lm_mean_loss,
+        }
+
+      eval_metrics = (metric_fn, [
+          masked_lm_loss, masked_lm_log_probs, features["masked_lm_ids"],
+          features["masked_lm_weights"]
+      ])
+
       output_spec = tf.compat.v1.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
           loss=total_loss,
           eval_metrics=eval_metrics)
     else:
-
       output_spec = tf.compat.v1.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
           predictions={
@@ -532,7 +558,7 @@ def main(_):
     estimator.train(input_fn=train_input_fn,
                     max_steps=FLAGS.num_train_steps)
 
-  if FLAGS.do_eval:
+  if FLAGS.do_eval: #학습된 모델 평가
     logging.info("***** Running evaluation *****")
     logging.info("  Batch size = %d", estimator.eval_batch_size)
 
@@ -552,12 +578,13 @@ def main(_):
     while True:
       latest = tf.train.latest_checkpoint(FLAGS.output_dir)
       if latest == last_evaluated:
+        break
         if not latest:
           logging.info("No checkpoints found yet.")
         else:
           logging.info("Latest checkpoint %s already evaluated.", latest)
         time.sleep(300)
-        continue
+        #continue
       else:
         logging.info("Evaluating check point %s", latest)
         last_evaluated = latest

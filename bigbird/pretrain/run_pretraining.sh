@@ -11,12 +11,12 @@ cd /app/ko_bigbird/bigbird/pretrain/
   --output_dir=../model/pretrained \
   --vocab_model_file=../bpe_model/ko_big_bird.model \
   --num_train_steps=1000000000 \
-  --max_encoder_length=3072 \
+  --max_encoder_length=2048 \
   --max_predictions_per_seq=75 \
   --masked_lm_prob=0.15 \
   --do_train=true \
   --do_eval=false \
   --do_export=false \
-  --train_batch_size=2 \
-  --batch_size=2 \
+  --train_batch_size=3 \
+  --batch_size=3 \
   --preprocessed_data=true
