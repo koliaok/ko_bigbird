@@ -16,6 +16,7 @@
 
 import os
 import time
+import datetime
 
 from absl import app
 from absl import logging
@@ -598,6 +599,7 @@ def main(_):
 
         with tf.io.gfile.GFile(output_eval_file, "a") as writer:
           logging.info("***** Eval results *****")
+          writer.write(f"pre-training test date is :{datetime.date.today()}")
           for key in sorted(result.keys()):
             logging.info("  %s = %s", key, str(result[key]))
             writer.write("%s = %s\n" % (key, str(result[key])))
