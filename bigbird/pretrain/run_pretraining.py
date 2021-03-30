@@ -330,7 +330,7 @@ def model_fn_builder(bert_config):
             def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
                     masked_lm_weights, next_sentence_loss_value,
                     next_sentence_log_probs, next_sentence_labels):
-        
+
         masked_lm_predictions = tf.argmax(
             masked_lm_log_probs, axis=-1, output_type=tf.int32)
         masked_lm_accuracy = tf.compat.v1.metrics.accuracy(
@@ -362,7 +362,7 @@ def model_fn_builder(bert_config):
       """
       def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
                     masked_lm_weights):
-        
+
         masked_lm_predictions = tf.argmax(
             masked_lm_log_probs, axis=-1, output_type=tf.int32)
         masked_lm_accuracy = tf.compat.v1.metrics.accuracy(
@@ -596,7 +596,7 @@ def main(_):
                                     steps=FLAGS.max_eval_steps,
                                     checkpoint_path=latest)
 
-        with tf.io.gfile.GFile(output_eval_file, "w") as writer:
+        with tf.io.gfile.GFile(output_eval_file, "a") as writer:
           logging.info("***** Eval results *****")
           for key in sorted(result.keys()):
             logging.info("  %s = %s", key, str(result[key]))
