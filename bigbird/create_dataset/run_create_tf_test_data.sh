@@ -8,7 +8,7 @@ poetry run python ./create_pretraining_data.py \
   --input_file=../datasource/pretrained_data/pretraining_test_data.txt \
   --output_file=../datasource/tf_pretrained_data/pretraining_data.tfrecord \
   --vocab_file=../bpe_model/ko_big_bird.model \
-  --max_seq_length=2048 \
+  --max_seq_length=1024 \
   --max_predictions_per_seq=75 \
   --random_seed=12345 \
   --masked_lm_prob=0.15 \
