@@ -10,4 +10,4 @@ services:
     image: ${COMPOSE_PROJECT_NAME:-ko_bigbird}_2.4.0-gpu
     command: /app/ko_bigbird/bigbird/pretrain/run_pretraining.sh
     volumes:
-      - /var/lib/docker/volumes/vol/_data:/app
+      - /var/snap/docker/common/var-lib-docker/volumes/vol/_data:/app
