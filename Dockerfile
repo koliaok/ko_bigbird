@@ -1,11 +1,11 @@
-FROM tensorflow/tensorflow:2.4.0-gpu
+FROM tensorflow/tensorflow:2.4.1-gpu
 
 ARG TIMEZONE=Asia/Seoul
 RUN ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
 
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install build-essential checkinstall -y
-RUN apt-get install python3.8 -y && apt-get install cron -y && apt-get install vim -y
+RUN apt-get install python3.8 -y && apt-get install vim -y
 
 RUN python3.8 -m pip install --upgrade pip && python3.8 -m pip install poetry
 

@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         TIMEZONE: ${TIMEZONE:-Asia/Seoul}
-    image: ${COMPOSE_PROJECT_NAME:-ko_bigbird}_2.4.0-gpu
+    image: ${COMPOSE_PROJECT_NAME:-ko_bigbird}_2.4.1-gpu
     command: /app/ko_bigbird/bigbird/pretrain/run_pretraining.sh
     volumes:
       - /var/snap/docker/common/var-lib-docker/volumes/vol/_data:/app
