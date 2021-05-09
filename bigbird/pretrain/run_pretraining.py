@@ -597,7 +597,7 @@ def main(_):
                                     steps=FLAGS.max_eval_steps,
                                     checkpoint_path=latest)
 
-        with tf.io.gfile.GFile(output_eval_file, "a") as writer:
+        with tf.io.gfile.GFile(output_eval_file, "w") as writer:
           logging.info("***** Eval results *****")
           writer.write(f"\npre-training test date is :{datetime.datetime.today()}\n")
           for key in sorted(result.keys()):
