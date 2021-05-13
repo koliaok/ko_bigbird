@@ -1071,5 +1071,5 @@ class MultiHeadedAttentionLayer(tf.compat.v1.layers.Layer):
         query, key, value, attention_mask,
         band_mask, from_mask, to_mask, from_blocked_mask, to_blocked_mask,
         batch_size, from_seq_length, to_seq_length, training)
-    # 입력때와 같은 shape이며, sparse attention한 결과 결과 (4, 2048, 12, 64)
+    # 입력때와 같은 shape이며, sparse attention한 결과 (4, 2048, 12, 64)
     return contextual_output

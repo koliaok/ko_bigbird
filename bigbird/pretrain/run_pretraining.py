@@ -280,22 +280,10 @@ def model_fn_builder(bert_config):
         masked_lm_positions=features.get("masked_lm_positions"),
         initializer=utils.create_initializer(bert_config["initializer_range"]),
         activation_fn=utils.get_activation(bert_config["hidden_act"]))
+
     masked_lm_loss, masked_lm_log_probs = masked_lm.get_mlm_loss()
 
-    """
-    next_sentence = NSPLayer( # next sentence output 계산 모델 정의
-        bert_config["hidden_size"],
-        input_tensor=pooled_output,
-        next_sentence_labels=features.get("next_sentence_labels"),
-        initializer=utils.create_initializer(bert_config["initializer_range"]))
-    next_sentence_loss, next_sentence_log_probs = next_sentence.get_next_sentence_loss()
-    """
     total_loss = masked_lm_loss
-
-    """
-    if bert_config["use_nsp"]:
-      total_loss += next_sentence_loss
-    """
 
     tvars = tf.compat.v1.trainable_variables()
     utils.LogVariable(tvars, bert_config["ckpt_var_list"])
@@ -327,40 +315,7 @@ def model_fn_builder(bert_config):
               bert_config["output_dir"], {"learning_rate": learning_rate}))
 
     elif mode == tf.estimator.ModeKeys.EVAL:
-      """
-            def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
-                    masked_lm_weights, next_sentence_loss_value,
-                    next_sentence_log_probs, next_sentence_labels):
 
-        masked_lm_predictions = tf.argmax(
-            masked_lm_log_probs, axis=-1, output_type=tf.int32)
-        masked_lm_accuracy = tf.compat.v1.metrics.accuracy(
-            labels=masked_lm_ids,
-            predictions=masked_lm_predictions,
-            weights=masked_lm_weights)
-        masked_lm_mean_loss = tf.compat.v1.metrics.mean(
-            values=masked_lm_loss_value)
-
-        next_sentence_predictions = tf.argmax(
-            next_sentence_log_probs, axis=-1, output_type=tf.int32)
-        next_sentence_accuracy = tf.compat.v1.metrics.accuracy(
-            labels=next_sentence_labels, predictions=next_sentence_predictions)
-        next_sentence_mean_loss = tf.compat.v1.metrics.mean(
-            values=next_sentence_loss_value)
-
-        return {
-            "masked_lm_accuracy": masked_lm_accuracy,
-            "masked_lm_loss": masked_lm_mean_loss,
-            "next_sentence_accuracy": next_sentence_accuracy,
-            "next_sentence_loss": next_sentence_mean_loss,
-        }
-
-      eval_metrics = (metric_fn, [
-          masked_lm_loss, masked_lm_log_probs, features["masked_lm_ids"],
-          features["masked_lm_weights"], next_sentence_loss,
-          next_sentence_log_probs, features["next_sentence_labels"]
-      ])
-      """
       def metric_fn(masked_lm_loss_value, masked_lm_log_probs, masked_lm_ids,
                     masked_lm_weights):
 
@@ -539,6 +494,7 @@ def main(_):
   model_fn = model_fn_builder(bert_config)# 학습 모델을 설정
 
   estimator = utils.get_estimator(bert_config, model_fn)# 모델를 학습하고, 예측할 estimator 생성
+
   if FLAGS.do_train:
     logging.info("***** Running training *****")
     logging.info("  Batch size = %d", estimator.train_batch_size)
@@ -614,7 +570,7 @@ def main(_):
         substitute_newline=FLAGS.substitute_newline)
 
     estimator.export_saved_model(
-        os.path.join(FLAGS.output_dir, "export"), serving_input_fn)
+        os.path.join(FLAGS.output_dir), serving_input_fn)
 
 
 if __name__ == "__main__":
