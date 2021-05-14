@@ -3,7 +3,6 @@ import numpy as np
 import os
 import argparse
 
-from scipy.special import softmax
 from bigbird.create_dataset.text_util import TextUtil
 
 
@@ -20,7 +19,6 @@ class ServingManager(object):
     """
     Serving model을 로드, 테스트, 관리 하는 Class
     """
-
     def __init__(self):
         # Text Tokenize, De-Tokenize, Tokenize 된 텍스트를 원래 텍스트로 변환하고 그 Index를 관리하는 Class
         self.text_util = TextUtil(vocab_model=args.vocab_dir)
@@ -84,7 +82,7 @@ class ServingManager(object):
         for (v, idx_list) in matching_tokenize_text:
             res_v = res[idx_list[0]:idx_list[-1] + 1]
             res_numpy.append(np.average(res_v)) # 원본텍스트에 대한 단어의 representation을 평균
-        res = softmax(res_numpy, axis=-1) # 가장 의미가 큰 것을 구하기 위해서 Softmax
+        res = self.softmax(res_numpy, axis=-1) # 가장 의미가 큰 것을 구하기 위해서 Softmax
 
         index_max = {}
         for i, data in enumerate(res):
@@ -97,6 +95,11 @@ class ServingManager(object):
 
         for i, (idx, v) in enumerate(res_sorted):
             print('Text: ', id_to_original_text[idx], '  Rank: ', i, '    Score: ', v)
+
+
+    def softmax(self, x, axis=-1):
+        x = np.exp(x-np.max(x, axis=axis))
+        return x/np.sum(x, axis=axis)
 
 
 
