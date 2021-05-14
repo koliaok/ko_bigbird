@@ -58,7 +58,7 @@ $ ./run_create_tf_test_data.sh # training data, you need to change data source d
 ```
 
 * change output model directory in bigbird/create_dataset/run_pretraining.sh, run_pretraining_test.sh, run_pretraining_create_serve_model.sh.sh
-
+* you change shell file permission 
 * if your completed setting, start docker compose pretrain model train, validation, serve model test
 ```
 $ docker-compose build
