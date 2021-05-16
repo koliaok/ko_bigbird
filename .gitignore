@@ -177,7 +177,9 @@ bigbird/summarization/summary_output
 bigbird/vocab
 bigbird/datasource/
 bigbird/model/
+bigbird/bpe_model/
 
 # pretrain preprocessing data set
 data_preprocessing/preprocessing_summary/datasource/
 data_preprocessing/preprocessing_dataset/
+
