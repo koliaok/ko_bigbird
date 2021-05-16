@@ -184,3 +184,4 @@ data_preprocessing/preprocessing_dataset/pretraining_data.txt
 data_preprocessing/preprocessing_dataset/pretraining_test_data.txt
 
 data_preprocessing/preprocessing_summary/datasource/
+/data_preprocessing/preprocessing_dataset/
