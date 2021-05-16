@@ -236,6 +236,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
       total_data = reader.readlines()
 
       split_data_len = len(total_data) // FLAGS.split_output_data_len
+      print(split_data_len)
 
       last_data_len = len(total_data) % FLAGS.split_output_data_len
 
