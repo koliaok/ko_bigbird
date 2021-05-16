@@ -18,9 +18,9 @@ original_define_token = original_define_token.split(',')
 
 input_file = added_parser.input_data
 model_name = added_parser.output_model
-vocab_size = 30000
+vocab_size = 15000
 model_type = "bpe"
-max_sentence_len = 999999
+max_sentence_len = 5000
 
 
 class SentencePiece(object):
