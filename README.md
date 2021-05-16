@@ -5,9 +5,19 @@ I develop environment using [python poetry](https://python-poetry.org/)
 
 
 ## 1. data pre-processing
-* data : 뉴스 기사 + 한국어 위키 데이터
+* data :
+  + 네이버 창원 개체명 인식 데이터 
+  + 한국어 위키 데이터 
+  + 나무위키 
+  + 한국어 혐오 데이터셋 
+  + 청와대 국민 청원 
+  + 한국어 영어 병렬 말뭉치(한국어만) 
+  + 한국어 챗봇 
+  + 네이버 sentiment movie corpus 
+  + 한국어 질문 답변
+    
 * vocab type: Sentencepiece BPE
-* BPE vocab size : 10000
+* BPE vocab size : 30000
 * training data : [CLS] + document + [SEP]
 * max_encoder_length: 1024
 

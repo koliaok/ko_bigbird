@@ -144,9 +144,10 @@ class DataProcessing():
                 original_text += read
 
 
+
 def main():
     data_processing = DataProcessing()
-    data_processing.news_data_save()
+    #data_processing.news_data_save()
     #data_processing.row_data_save() -> 전체 wiki data + news data
     #data_processing.data_preprocessing()
     #data_processing.row_data_save()
