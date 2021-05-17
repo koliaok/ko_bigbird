@@ -221,7 +221,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
 
   second_output_type = '.' + another_output_path[1]
 
-  all_documents = [[]]
+  all_documents = []
 
   # Input file format:
   # (1) One sentence per line. These should ideally be actual sentences, not
@@ -233,7 +233,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   for input_file in input_files:
     with tf.io.gfile.GFile(input_file, "r") as reader:
 
-      total_data = reader.readlines()
+      total_data = reader.readlines()[:10000]
 
       split_data_len = len(total_data) // FLAGS.split_output_data_len
       print(split_data_len)
@@ -251,10 +251,8 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
         line = line.strip()
 
         # Empty lines are used as document delimiters
-        if not line:
-          all_documents.append([])
-        else:
-          all_documents[-1].append(line)
+        if line:
+          all_documents.append([line])
 
         cnt += 1
 
@@ -292,14 +290,14 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
             instances.extend([instance])
 
           rng.shuffle(instances)
-
+          print(instance)
           output_data_name = first_output_text + '_' + str(text_cnt) + '_' + train_type + second_output_type
 
           write_instance_to_example_files(instances, [output_data_name])
 
           del all_documents
 
-          all_documents = [[]]
+          all_documents = []
 
           if text_cnt == (FLAGS.split_output_data_len):
             split_data_len += last_data_len

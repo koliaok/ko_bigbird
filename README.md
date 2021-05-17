@@ -15,9 +15,12 @@ I develop environment using [python poetry](https://python-poetry.org/)
   + 한국어 챗봇 
   + 네이버 sentiment movie corpus 
   + 한국어 질문 답변
-    
+  + 네이버 뉴스 
+  
+* Pretraining data size : 9GB
+* Sentence size : 13,830,465
 * vocab type: Sentencepiece BPE
-* BPE vocab size : 30000
+* BPE vocab size : 15000
 * training data : [CLS] + document + [SEP]
 * max_encoder_length: 1024
 

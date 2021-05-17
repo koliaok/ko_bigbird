@@ -66,8 +66,8 @@ class SentencePiece(object):
 
 def main():
     sentence_piecemodel = SentencePiece()
-    sentence_piecemodel.make_sentence_piece()
-    #sentence_piecemodel.load_sentece_pice_model()
+    #sentence_piecemodel.make_sentence_piece()
+    sentence_piecemodel.load_sentece_pice_model()
 
 if __name__ == '__main__':
     main()

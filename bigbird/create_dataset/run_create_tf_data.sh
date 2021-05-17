@@ -5,7 +5,7 @@
 export PYTHONPATH="/app/ko_bigbird:$PYTHONPATH"
 
 poetry run python ./create_pretraining_data.py \
-  --input_file=../datasource/pretrained_data/all.train \
+  --input_file=../datasource/pretrained_data/pretraining_data.train \
   --output_file=../datasource/tf_pretrained_data/pretraining_data.tfrecord \
   --vocab_file=../bpe_model/ko_big_bird.model \
   --max_seq_length=1024 \
