@@ -611,8 +611,9 @@ def get_estimator(config, model_fn, keep_checkpoint_max=5):
           num_shards=config["num_tpu_cores"], # TPU core만큼 시스템의 복제품을 만듬 -> 복제품 코어 * 복제품이 병렬 학습환경에서 총 Core수 -> 8로 설정
           per_host_input_for_training=is_per_host, # 학습 단계에서 호스트 설정 PER_HOST_V2 -> 3
           eval_training_input_configuration=sliced_eval_mode)) #평가 단계에서 호스트 설정 PER_HOST_V1 -> 2
+  import os
+  if config["init_checkpoint"] and len(os.listdir(config["init_checkpoint"])) > 1: # Checkpoint가 설정된 경우( 이미 Trainig 된 모델이 있다면) WarmStartSettings를 이용한 Checkpoint model load
 
-  if config["init_checkpoint"]: # Checkpoint가 설정된 경우( 이미 Trainig 된 모델이 있다면) WarmStartSettings를 이용한 Checkpoint model load
     ckpt_var_list = tf.compat.v1.train.list_variables(config["init_checkpoint"])
     ckpt_var_list = {
         name: shape for name, shape in ckpt_var_list

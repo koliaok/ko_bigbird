@@ -233,7 +233,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   for input_file in input_files:
     with tf.io.gfile.GFile(input_file, "r") as reader:
 
-      total_data = reader.readlines()[:10000]
+      total_data = reader.readlines()
 
       split_data_len = len(total_data) // FLAGS.split_output_data_len
       print(split_data_len)
