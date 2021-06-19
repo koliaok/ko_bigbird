@@ -222,8 +222,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   second_output_type = '.' + another_output_path[1]
 
   all_documents = []
-
-  # Input file format:
+   # Input file format:
   # (1) One sentence per line. These should ideally be actual sentences, not
   # entire paragraphs or arbitrary spans of text. (Because we use the
   # sentence boundaries for the "next sentence prediction" task).
@@ -270,24 +269,23 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
 
           for documents in all_documents:
             subtokens = tokenizer.tf_tokenizer.tokenize(documents)
+            subtokens = subtokens.numpy()[0]
 
-            #tokenize된 객체 들구오기
-            insert_tokens = subtokens.numpy()[0]
+            for insert_tokens in [subtokens[i:i + max_seq_length] for i in range(0, len(subtokens), max_seq_length)]:
+              # token masking처리
+              (subtokens_data, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
+               masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(insert_tokens)
 
-            # token masking처리
-            (subtokens, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
-             masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(insert_tokens)
+              instance = TrainingInstance(
+                tokens=subtokens_data,
+                tokens_postion_ids=subtokens_postion_ids,
+                segment_ids=segment_ids,
+                is_random_next=next_sentence_labels,
+                masked_lm_positions=masked_lm_positions,
+                masked_lm_labels=masked_lm_ids,
+                masked_lm_weights=masked_lm_weights)
 
-            instance = TrainingInstance(
-              tokens=subtokens,
-              tokens_postion_ids=subtokens_postion_ids,
-              segment_ids=segment_ids,
-              is_random_next=next_sentence_labels,
-              masked_lm_positions=masked_lm_positions,
-              masked_lm_labels=masked_lm_ids,
-              masked_lm_weights=masked_lm_weights)
-
-            instances.extend([instance])
+              instances.extend([instance])
 
           rng.shuffle(instances)
           print(instance)
