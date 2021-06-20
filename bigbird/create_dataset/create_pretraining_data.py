@@ -273,19 +273,20 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
 
             for insert_tokens in [subtokens[i:i + max_seq_length] for i in range(0, len(subtokens), max_seq_length)]:
               # token masking처리
-              (subtokens_data, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
-               masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(insert_tokens)
+              for tokens in [insert_tokens for i in range(3)]:
+                (subtokens_data, subtokens_postion_ids, masked_lm_positions, masked_lm_ids,
+                 masked_lm_weights, segment_ids, next_sentence_labels) = numpy_masking(tokens)
 
-              instance = TrainingInstance(
-                tokens=subtokens_data,
-                tokens_postion_ids=subtokens_postion_ids,
-                segment_ids=segment_ids,
-                is_random_next=next_sentence_labels,
-                masked_lm_positions=masked_lm_positions,
-                masked_lm_labels=masked_lm_ids,
-                masked_lm_weights=masked_lm_weights)
+                instance = TrainingInstance(
+                  tokens=subtokens_data,
+                  tokens_postion_ids=subtokens_postion_ids,
+                  segment_ids=segment_ids,
+                  is_random_next=next_sentence_labels,
+                  masked_lm_positions=masked_lm_positions,
+                  masked_lm_labels=masked_lm_ids,
+                  masked_lm_weights=masked_lm_weights)
 
-              instances.extend([instance])
+                instances.extend([instance])
 
           rng.shuffle(instances)
           print(instance)
