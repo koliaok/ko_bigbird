@@ -10,7 +10,7 @@ poetry run python ./create_pretraining_data.py \
   --vocab_file=../bpe_model/ko_big_bird.model \
   --max_seq_length=1024 \
   --max_predictions_per_seq=75 \
-  --random_seed=12345 \
+  --random_seed=20210620 \
   --masked_lm_prob=0.15 \
   --split_output_data_len=50 \
   --is_train=true \
