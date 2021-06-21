@@ -305,9 +305,9 @@ def model_fn_builder(bert_config):
       gradients = optimizer.compute_gradients(total_loss, tvars)
       train_op = optimizer.apply_gradients(gradients, global_step=global_step)
       logging_hook = [
-          tf.compat.v1.train.LoggingTensorHook({"loss is -> ": total_loss}, every_n_iter=32),
-          tf.compat.v1.train.LoggingTensorHook({"global step -> ": global_step}, every_n_iter=32),
-          tf.compat.v1.train.LoggingTensorHook({"learning rate -> ": learning_rate}, every_n_iter=32)
+          tf.compat.v1.train.LoggingTensorHook({"loss is -> ": total_loss}, every_n_iter=256),
+          tf.compat.v1.train.LoggingTensorHook({"global step -> ": global_step}, every_n_iter=256),
+          tf.compat.v1.train.LoggingTensorHook({"learning rate -> ": learning_rate}, every_n_iter=256)
       ]
 
       output_spec = tf.compat.v1.estimator.tpu.TPUEstimatorSpec(
